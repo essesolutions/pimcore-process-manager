@@ -44,17 +44,28 @@ class CommandsValidator
 
     public function validateCommandConfiguration(LazyCommand | Command $command, Configuration $configuration): void
     {
-
         $settings = $configuration->getExecutorSettingsAsArray();
         $values = $settings['values'];
-
+    
         $commandOptions = $values['commandOptions'] ?? '';
-
-        //Todo: check if command options are valid
-        //and throw an error if they are not valid
-
-        //        throw new Exception('Command options are not valid');
-
+    
+        // Validate and sanitize command options
+        if (!$this->areCommandOptionsValid($commandOptions)) {
+            throw new Exception('Command options are not valid');
+        }
+    }
+    
+    private function areCommandOptionsValid(string $commandOptions): bool
+    {
+        // Escape shell arguments to prevent injection
+        $sanitizedOptions = escapeshellarg($commandOptions);
+    
+        // Validate using regex to ensure only allowed characters are present
+        if (preg_match('/^[a-zA-Z0-9\s\-]+$/', $sanitizedOptions)) {
+            return true;
+        }
+    
+        return false;
     }
 
     /**
