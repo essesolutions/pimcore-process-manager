@@ -13,6 +13,7 @@ use Exception;
 use Pimcore\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
+use InvalidArgumentException;
 
 class CommandsValidator
 {
@@ -42,6 +43,17 @@ class CommandsValidator
         $this->setBlackList($blackList);
     }
 
+    /**
+     * Validates the command configuration options and throws an error if they are not valid.
+     * 
+     * This method retrieves the command options from the configuration,
+     * validates them using a regular expression, and sanitizes them using the 
+     * escapeshellarg function if they are valid.
+     * 
+     * @param LazyCommand|Command $command The command instance to be validated.
+     * @param Configuration $configuration The configuration instance containing the command options.
+     * @throws InvalidArgumentException If the command options are not valid.
+     */
     public function validateCommandConfiguration(LazyCommand | Command $command, Configuration $configuration): void
     {
         $settings = $configuration->getExecutorSettingsAsArray();
@@ -49,23 +61,30 @@ class CommandsValidator
     
         $commandOptions = $values['commandOptions'] ?? '';
     
-        // Validate and sanitize command options
+        // Check if command options are valid
         if (!$this->areCommandOptionsValid($commandOptions)) {
-            throw new Exception('Command options are not valid');
+            throw new InvalidArgumentException('Command options are not valid');
         }
+    
+        // Use escapeshellarg if the input is valid
+        $sanitizedOptions = escapeshellarg($commandOptions);
+        // Replace the original command options with the sanitized ones
+        $values['commandOptions'] = $sanitizedOptions;
+        $settings['values'] = $values;
+        $configuration->setExecutorSettingsFromArray($settings);
     }
     
+    /**
+     * Validate the command options.
+     *
+     * @param string $commandOptions
+     * @return bool
+     */
     private function areCommandOptionsValid(string $commandOptions): bool
     {
-        // Escape shell arguments to prevent injection
-        $sanitizedOptions = escapeshellarg($commandOptions);
-    
-        // Validate using regex to ensure only allowed characters are present
-        if (preg_match('/^[a-zA-Z0-9\s\-]+$/', $sanitizedOptions)) {
-            return true;
-        }
-    
-        return false;
+        // Example validation logic:
+        // Ensure the command options match the pattern for single-letter (-l), word options (--list), and options with arguments (--file=/path/to/file)
+        return preg_match('/^(-[a-zA-Z]|\-\-[a-zA-Z0-9-]+)(\s+[a-zA-Z0-9._\/=-]+)*$/', $commandOptions);
     }
 
     /**
@@ -73,7 +92,6 @@ class CommandsValidator
      */
     public function getValidCommands(): array
     {
-
         $application = new Application(\Pimcore::getKernel());
         $commands = $this->{'getCommands' . ucfirst($this->getStrategy())}($application->all());
 
