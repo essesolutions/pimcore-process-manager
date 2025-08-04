@@ -103,8 +103,7 @@ class Dao extends AbstractDao
             }
 
             $this->db
-                ->prepare('DELETE FROM ' . $this->getTableName() . ' WHERE `id` = ?')
-                ->executeQuery([$id]);
+                ->executeQuery('DELETE FROM ' . $this->getTableName() . ' WHERE `id` = ?', [$id]);
 
             if ($logFile = $this->model->getLogFile()) {
                 @unlink($logFile);
