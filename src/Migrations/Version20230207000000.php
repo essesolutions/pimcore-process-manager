@@ -24,7 +24,6 @@ class Version20230207000000 extends BundleAwareMigration
     public function up(Schema $schema): void
     {
         $configurationTable = $schema->getTable('bundle_process_manager_configuration');
-
         if (!$configurationTable->hasColumn('restrictToPermissions')) {
             $this->addSql(
                 'ALTER TABLE `bundle_process_manager_configuration` ADD `restrictToPermissions` MEDIUMTEXT DEFAULT ""'
@@ -39,4 +38,5 @@ class Version20230207000000 extends BundleAwareMigration
     public function down(Schema $schema): void
     {
     }
+
 }

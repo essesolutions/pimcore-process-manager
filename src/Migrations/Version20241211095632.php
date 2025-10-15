@@ -26,8 +26,13 @@ class Version20241211095632 extends BundleAwareMigration
      */
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `currentStep` int(10)');
-        $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `totalSteps` int(10)');
+        $monitoringItemTable = $schema->getTable('bundle_process_manager_monitoring_item');
+        if ($monitoringItemTable->hasColumn('currentStep')) {
+            $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `currentStep` int(10)');
+        }
+        if ($monitoringItemTable->hasColumn('totalSteps')) {
+            $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `totalSteps` int(10)');
+        }
     }
 
     /**
@@ -35,7 +40,12 @@ class Version20241211095632 extends BundleAwareMigration
      */
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `currentStep` smallint(5)');
-        $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `totalSteps` smallint(5)');
+        $monitoringItemTable = $schema->getTable('bundle_process_manager_monitoring_item');
+        if ($monitoringItemTable->hasColumn('currentStep')) {
+            $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `currentStep` smallint(5)');
+        }
+        if ($monitoringItemTable->hasColumn('totalSteps')) {
+            $this->addSql('ALTER TABLE `bundle_process_manager_monitoring_item` MODIFY COLUMN `totalSteps` smallint(5)');
+        }
     }
 }
