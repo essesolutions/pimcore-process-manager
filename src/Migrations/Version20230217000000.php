@@ -23,13 +23,18 @@ class Version20230217000000 extends BundleAwareMigration
      */
     public function up(Schema $schema): void
     {
+        $configurationTable = $schema->getTable('bundle_process_manager_configuration');
+        if ($configurationTable->hasColumn('restrictToPermissions')) {
+            $this->addSql(
+                'UPDATE bundle_process_manager_configuration SET `restrictToPermissions` = "" WHERE `restrictToPermissions` IS null'
+            );
+        }
 
-        $this->addSql(
-            'UPDATE bundle_process_manager_configuration SET `restrictToPermissions` = "" WHERE `restrictToPermissions` IS null'
-        );
-        $this->addSql(
-            'ALTER TABLE `bundle_process_manager_configuration` MODIFY `restrictToPermissions`  MEDIUMTEXT NOT NULL DEFAULT ""'
-        );
+        if ($configurationTable->hasColumn('restrictToPermissions')) {
+            $this->addSql(
+                'ALTER TABLE `bundle_process_manager_configuration` MODIFY `restrictToPermissions`  MEDIUMTEXT NOT NULL DEFAULT ""'
+            );
+        }
     }
 
     /**
