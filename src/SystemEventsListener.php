@@ -35,7 +35,7 @@ class SystemEventsListener implements EventSubscriberInterface
             return;
         }
 
-        if (($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem()) instanceof \Elements\Bundle\ProcessManagerBundle\Model\MonitoringItem) {
+        if (($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem(false)) instanceof \Elements\Bundle\ProcessManagerBundle\Model\MonitoringItem) {
             $error = $e->getError();
             $monitoringItem->setMessage('ERROR: ' . $error->getMessage());
             $monitoringItem->getLogger()->error($error->getMessage());
@@ -49,11 +49,11 @@ class SystemEventsListener implements EventSubscriberInterface
             return;
         }
 
-        if (($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem()) instanceof \Elements\Bundle\ProcessManagerBundle\Model\MonitoringItem) {
+        if (($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem(false)) instanceof \Elements\Bundle\ProcessManagerBundle\Model\MonitoringItem) {
             Helper::executeMonitoringItemLoggerShutdown($monitoringItem);
         }
 
-        if ($e->getExitCode() == 0 && ($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem())) {
+        if ($e->getExitCode() == 0 && ($monitoringItem = ElementsProcessManagerBundle::getMonitoringItem(false))) {
             if (($config = Configuration::getById($monitoringItem->getConfigurationId() ?? '')) instanceof \Elements\Bundle\ProcessManagerBundle\Model\Configuration) {
                 $versions = $config->getKeepVersions();
                 if (is_numeric($versions)) {
